@@ -1,0 +1,42 @@
+asset_dir : ${hydra:runtime.cwd}/isaac_gym_manipulation/assets
+
+agent:
+  name: franka
+  start_dof : [1.157, -1.066, -0.155, -2.239, -1.841, 1.003, 0.469, 0.035, 0.035]
+  urdf_path : urdf/franka_description/robots/franka_panda.urdf # relative to main asset folder. 
+  pos : [0.0, 0.0, 1.0]
+  fix_base : True
+  gravity : False
+  gripper_rb_key : panda_hand
+  flip_visual_attachments : True
+  grasp : 
+    lift_height : 0.25
+    dist_to_gripper : 0.10
+    
+table : 
+  pos : [0.44, 0.0, 0.98] 
+  scale : [1,2,1]
+
+YCB_objects : 
+# objects positions are relative to the center of table 
+  ycb_apple : # problem with texture
+    urdf_path: urdf/ycb_objects_sample/ycb_apple/ycb_apple.urdf
+    pos : [0.1,0.8, .2]
+    scale : [1,1,1]
+  ycb_chips_can : 
+    urdf_path: urdf/ycb_objects_sample/ycb_chips_can/ycb_chips_can.urdf
+    pos : [0.1,0.4, .2]
+    scale : [1,1,1]
+
+  ycb_gelatin_box : # ok 
+    urdf_path: urdf/ycb_objects_sample/ycb_gelatin_box/ycb_gelatin_box.urdf
+    pos : [0.1,0.0, .2]
+    scale : [1,1,1]
+  ycb_mug: # problem with texture ??
+    urdf_path: urdf/ycb_objects_sample/ycb_mug/ycb_mug.urdf
+    pos : [-0.1,-0.4, 0.2]
+    scale : [1,1,1]
+  ycb_power_drill: # ok
+    urdf_path: urdf/ycb_objects_sample/ycb_power_drill/ycb_power_drill.urdf
+    pos : [-0.1,-0.8, .2]
+    scale : [1,1,1]

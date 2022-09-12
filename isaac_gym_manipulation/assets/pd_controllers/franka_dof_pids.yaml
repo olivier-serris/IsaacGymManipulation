@@ -1,0 +1,15 @@
+# coefficient taken from the file : 
+# https://github.com/NVIDIA-Omniverse/IsaacGymEnvs/blob/main/isaacgymenvs/tasks/franka_cube_stack.py
+# lines : 
+# https://github.com/NVIDIA-Omniverse/IsaacGymEnvs/blob/ca7a4fb762f9581e39cc2aab644f18a83d6ab0ba/isaacgymenvs/tasks/franka_cube_stack.py#L207-L208
+
+panda_joint_0: {p: 400,  d: 80}
+panda_joint_1: {p: 400,  d: 80}
+panda_joint_2: {p: 400,  d: 80}
+panda_joint_3: {p: 400,  d: 80}
+panda_joint_4: {p: 400,  d: 80}
+panda_joint_5: {p: 400,  d: 80}
+panda_joint_6: {p: 400,  d: 80}
+panda_joint_7: {p: 400,  d: 80}
+panda_leftfinger: {p: 1_000_000,  d: 100}
+panda_rightfinger: {p: 1_000_000,  d: 100}

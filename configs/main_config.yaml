@@ -1,0 +1,21 @@
+physics_engine: 'physx'
+rl_device : cuda
+sim : 
+  dt: 0.0166 # 1/60
+  substeps : 2
+  use_gpu_pipeline  : True
+  up_axis : 'z'
+  gravity: [0.0, 0.0, -9.81]
+
+env : 
+  numEnvs : 8
+  episodeLength : 1000
+  numObservations : 24 # will be hard coded in env for next iterations.
+  envSpacing : 2 # will be hard coded in env for next iterations
+  
+  scene : ${scene}
+
+defaults:
+  - scene: franka_ycb 
+  - command: franka_effort
+ 
