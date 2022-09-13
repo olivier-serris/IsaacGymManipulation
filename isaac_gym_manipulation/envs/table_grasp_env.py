@@ -56,14 +56,14 @@ class TableGraspEnv(RobotSoloEnv):
             All actors must be added to an env before creating the next env.
             Adding actors to envs out of order can result in errors.
         """
-        # TODO : Add aggregate_mode to optimize further
-
         # load robots props:
         asset_root = self.scene_cfg["asset_dir"]
         agent_asset, agent_dof_props = self.get_main_agent_asset(asset_root)
         agent_start_tr = gymapi.Transform()
         agent_start_tr.p = gymapi.Vec3(*self.scene_cfg["agent"]["pos"])
         agent_start_tr.r = gymapi.Quat.from_euler_zyx(0, 0, 0)
+        n_agent_bodies = self.gym.get_asset_rigid_body_count(agent_asset)
+        n_agent_shapes = self.gym.get_asset_rigid_shape_count(agent_asset)
 
         # table props :
         table_pos = gymapi.Vec3(*self.scene_cfg["table"]["pos"])
@@ -74,6 +74,8 @@ class TableGraspEnv(RobotSoloEnv):
             np.array([1.2, 1.2, table_thickness]) * self.scene_cfg["table"]["scale"]
         )
         table_asset = self.gym.create_box(self.sim, *table_dimensions, table_opts)
+        n_table_bodies = self.gym.get_asset_rigid_body_count(table_asset)
+        n_table_shapes = self.gym.get_asset_rigid_shape_count(table_asset)
 
         # Define start pose for table
         table_tr = gymapi.Transform()
@@ -82,18 +84,41 @@ class TableGraspEnv(RobotSoloEnv):
 
         self._table_surface_pos = table_pos + gymapi.Vec3(*[0, 0, table_thickness / 2])
 
+        # load objects assets :
+        asset_options = gymapi.AssetOptions()
+        asset_options.convex_decomposition_from_submeshes = True  # with this parameters, it seems that collision from vhacd file are used.
+        asset_options.mesh_normal_mode = gymapi.COMPUTE_PER_VERTEX
+        # overrides values for COM (ycb urdf asset values are wrong) : .
+        asset_options.override_inertia = True
+        asset_options.override_com = True
         # placeholder :
         cube_asset = self.gym.create_box(self.sim, *([0.1, 0.1, 0.1]))
+        # asset_options.use_mesh_materials = True
+        object_assets = {}
+        n_objects_bodies = 0
+        n_objects_shapes = 0
+        for obj_key, object_config in self.scene_cfg["YCB_objects"].items():
+            object_asset = self.gym.load_asset(
+                self.sim, asset_root, object_config["urdf_path"], asset_options
+            )
+            n_objects_bodies += self.gym.get_asset_rigid_body_count(object_asset)
+            n_objects_shapes += self.gym.get_asset_rigid_shape_count(object_asset)
+            object_assets[obj_key] = object_asset
 
         # Create environments :
         lower = gymapi.Vec3(-spacing, -spacing, 0.0)
         upper = gymapi.Vec3(spacing, spacing, spacing)
         self.envs = []
         self.object_ids = []
+        n_body_per_env = n_agent_bodies + n_table_bodies + n_objects_bodies
+        n_shapes_per_env = n_agent_shapes + n_table_shapes + n_objects_shapes
 
         for i in range(self.num_envs):
             env = self.gym.create_env(self.sim, lower, upper, num_per_row)
             self.envs.append(env)
+
+            # aggregation is an optimization mecanism described in IsaacGym_Preview_4_Package/isaacgym/docs/programming/physics.html?highlight=aggregate#aggregates
+            self.gym.begin_aggregate(env, n_body_per_env, n_shapes_per_env, True)
 
             # Create main actor :
             agent_actor = self.isaac_tensor_manager.create_actor(
@@ -109,20 +134,10 @@ class TableGraspEnv(RobotSoloEnv):
             self.isaac_tensor_manager.create_actor(
                 env, table_asset, table_tr, "table", i
             )
+
             # Create objects on table
             for obj_key, object_config in self.scene_cfg["YCB_objects"].items():
-                asset_options = gymapi.AssetOptions()
-                asset_options.convex_decomposition_from_submeshes = True  # with this parameters, it seems that collision from vhacd file are used.
-                asset_options.mesh_normal_mode = gymapi.COMPUTE_PER_VERTEX
-                # overrides values for COM (ycb urdf asset values are wrong) : .
-                asset_options.override_inertia = True
-                asset_options.override_com = True
-                # asset_options.use_mesh_materials = True
-
-                object_asset = self.gym.load_asset(
-                    self.sim, asset_root, object_config["urdf_path"], asset_options
-                )
-
+                object_asset = object_assets[obj_key]
                 pose = gymapi.Transform()
                 pose.p = self._table_surface_pos + gymapi.Vec3(*object_config["pos"])
                 pose.r = gymapi.Quat.from_euler_zyx(0, 0, 0)
@@ -143,6 +158,7 @@ class TableGraspEnv(RobotSoloEnv):
                     }
                     self.isaac_tensor_manager.actor_dict[obj_key].infos.update(infos)
                     self.object_ids.append(obj_key)
+            self.gym.end_aggregate(env)
 
     def compute_reward(self, actions):
         """
