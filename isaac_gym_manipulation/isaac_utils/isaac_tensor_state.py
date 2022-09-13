@@ -74,12 +74,12 @@ class IsaacTensorState:
         assert success
         success = self.gym.refresh_rigid_body_state_tensor(self.sim)
         assert success
-        # if len(self.jacobian) > 0:
-        success = self.gym.refresh_jacobian_tensors(self.sim)
-        assert success
-        # if len(self.mass_matrix) > 0:
-        success = self.gym.refresh_mass_matrix_tensors(self.sim)
-        assert success
+        if len(self.jacobian) > 0:
+            success = self.gym.refresh_jacobian_tensors(self.sim)
+            assert success
+        if len(self.mass_matrix) > 0:
+            success = self.gym.refresh_mass_matrix_tensors(self.sim)
+            assert success
 
     def get_state(self, ids):
         root_state = self.root_state[ids, :]

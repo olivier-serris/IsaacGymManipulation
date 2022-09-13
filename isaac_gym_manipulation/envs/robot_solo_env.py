@@ -63,7 +63,8 @@ class RobotSoloEnv(VecTask):
 
         # visualisation and debug options:
         self.setup_camera()
-        self.set_up_debugger()
+        if self.debug_mode:
+            self.set_up_debugger()
 
     def get_state(self, env_ids: torch.Tensor = None) -> dict:
         """Returns a dictionary containing the state of the simulation"""
@@ -219,7 +220,8 @@ class RobotSoloEnv(VecTask):
 
         # auto reset all environments that need to be reset.
         if (self.reset_buf > 0).any():
-            self.reset_idx(self.reset_buf)
+            env_ids = self.reset_buf.nonzero(as_tuple=False).squeeze(-1)
+            self.reset_idx(env_ids)
         self.isaac_tensor_manager.refresh_all()
         self.compute_observations()
         self.compute_reward(self.actions)

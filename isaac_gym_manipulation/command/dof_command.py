@@ -88,7 +88,7 @@ class DOF_Command:
 
     def update_global_dof_pos(self, dof_state, command_val):
         """ """
-        dof_state[:, self.world_dof_min : self.world_dof_max, :0] = command_val
+        dof_state[:, self.world_dof_min : self.world_dof_max, 0] = command_val
         return dof_state
 
     def update_global_dof_val(self, dof_val, command_val):
@@ -188,9 +188,6 @@ class CommandManager:
         # PID target pos control :
         commands = self.get_commands_of_type(ControllerType.dof_pid_pos)
         if commands:
-            pos_target = torch.zeros(
-                self.num_envs, isaac_state.n_dof, device=self.device
-            )
             pos_target = isaac_state.dof_position_target
             for command in commands:
                 act = actions[:, command.action_range[0] : command.action_range[1]]
