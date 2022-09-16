@@ -12,6 +12,14 @@ from .base.vec_task import VecTask
 from isaac_gym_manipulation.debugger.debuggers import DefaultDebugger
 from isaac_gym_manipulation.isaac_utils.isaac_tensor_manager import IsaacTensorManager
 from isaac_gym_manipulation.command.dof_command import CommandManager
+from omegaconf import OmegaConf
+
+OmegaConf.register_new_resolver("eq", lambda x, y: x.lower() == y.lower())
+OmegaConf.register_new_resolver("contains", lambda x, y: x.lower() in y.lower())
+OmegaConf.register_new_resolver("if", lambda pred, a, b: a if pred else b)
+OmegaConf.register_new_resolver(
+    "resolve_default", lambda default, arg: default if arg == "" else arg
+)
 
 
 class RobotSoloEnv(VecTask):
@@ -27,6 +35,7 @@ class RobotSoloEnv(VecTask):
         self.debug_mode = not headless
         self.scene_cfg = cfg["env"]["scene"]
         self.agent_name = self.scene_cfg["agent"]["name"]
+        self.reset_noise = self.cfg["env"]["reset_noise"]
 
         ### create commands based on config:
         self.command_manager = CommandManager(cfg["env"]["numEnvs"])
@@ -59,7 +68,9 @@ class RobotSoloEnv(VecTask):
         self.isaac_tensor_manager.refresh_all()
 
         # reset all environments on startup :
-        self.reset_idx(torch.arange(self.num_envs, device=self.device))
+        self.reset_idx(
+            torch.arange(self.num_envs, device=self.device), with_noise=self.reset_noise
+        )
 
         # visualisation and debug options:
         self.setup_camera()
@@ -179,29 +190,31 @@ class RobotSoloEnv(VecTask):
         """Computes the reward and reset buffer"""
         return torch.zeros(self.num_observations, device=self.device)
 
-    def reset_idx(self, env_ids: torch.Tensor):
+    def reset_idx(self, env_ids: torch.Tensor, with_noise=True):
         """Reset the selected environments"""
         agent_state = self.isaac_tensor_manager.actor_dict[self.agent_name]
         num_agent_dof = agent_state.num_dofs
         reset_state = copy.deepcopy(self.start_state)
-
-        # take a view of the reset state with only actor dof
-        dof_view = agent_state.dof_view(reset_state["dof_state"])
-        # add noise to actor DOF
-        dof_view.pos += 0.25 * (
-            torch.rand((len(env_ids), num_agent_dof), device=self.device) - 0.5
-        )
-        dof_view.pos = torch.clamp(
-            dof_view.pos,
-            agent_state.dof_lower_limits,
-            agent_state.dof_upper_limits,
-        )
+        if with_noise:
+            # take a view of the reset state with only actor dof
+            dof_view = agent_state.dof_view(reset_state["dof_state"])
+            # add noise to actor DOF
+            dof_view.pos += 0.25 * (
+                torch.rand((len(env_ids), num_agent_dof), device=self.device) - 0.5
+            )
+            dof_view.pos = torch.clamp(
+                dof_view.pos,
+                agent_state.dof_lower_limits,
+                agent_state.dof_upper_limits,
+            )
         self.isaac_tensor_manager.set_state(reset_state, env_ids)
         self.progress_buf[env_ids] = 0
         self.reset_buf[env_ids] = 0
 
-    def reset(self):
-        self.reset_idx(torch.arange(self.num_envs, device=self.device))
+    def reset(self, with_noise=True):
+        self.reset_idx(
+            torch.arange(self.num_envs, device=self.device), with_noise=with_noise
+        )
         return super().reset()
 
     def pre_physics_step(self, actions: torch.Tensor):
@@ -221,7 +234,7 @@ class RobotSoloEnv(VecTask):
         # auto reset all environments that need to be reset.
         if (self.reset_buf > 0).any():
             env_ids = self.reset_buf.nonzero(as_tuple=False).squeeze(-1)
-            self.reset_idx(env_ids)
+            self.reset_idx(env_ids, with_noise=self.reset_noise)
         self.isaac_tensor_manager.refresh_all()
         self.compute_observations()
         self.compute_reward(self.actions)

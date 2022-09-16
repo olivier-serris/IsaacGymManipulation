@@ -39,6 +39,9 @@ class GraspManager:
     def gripper_contact(self, target_id):
         return self.grap_detectors[target_id].gripper_contact()
 
+    def no_table_contact(self, target_id):
+        return self.grap_detectors[target_id].no_table_contact()
+
 
 class GraspDetector:
     def __init__(
@@ -78,7 +81,10 @@ class GraspDetector:
         repeated_centroid = actor.infos["centroid"].repeat(actor.root.rot.shape[0], 1)
         target_pos = quat_rotate(actor.root.rot, repeated_centroid) + actor.root.pos
 
-        table_contact = target_pos[:, 2] > self.table_height + self.lift_height
+        table_contact = (
+            target_pos[:, 2] - actor.infos["radius"]
+            > self.table_height + self.lift_height
+        )
         return table_contact
 
     def gripper_contact(self):

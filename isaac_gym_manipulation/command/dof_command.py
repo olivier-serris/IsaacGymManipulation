@@ -173,7 +173,7 @@ class CommandManager:
             )
             assert success
 
-        # Absolute pos control :
+        # Absolute pos control (Dangerous and instable):
         commands = self.get_commands_of_type(ControllerType.dof_abs_pos)
         if commands:
             # TODO : Optimization might not need to clone.

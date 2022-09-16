@@ -168,12 +168,18 @@ class TableGraspEnv(RobotSoloEnv):
         self.gripper_collide_object = torch.zeros(self.num_envs, self.nb_objects).to(
             self.device
         )
+        self.no_table_contact = torch.zeros(self.num_envs, self.nb_objects).to(
+            self.device
+        )
         grasped = torch.zeros(self.num_envs, self.nb_objects).to(self.device)
 
         for i, object_id in enumerate(self.object_ids):
             self.gripper_collide_object[:, i] = self.grasp_manager.gripper_contact(
                 object_id
             )
+            self.no_table_contact[
+                :, i
+            ] = self.grasp_manager.no_table_contact(object_id)
             grasped[:, i] = self.grasp_manager.is_grapsed(object_id)
         rewards, _ = torch.max(grasped, dim=1)
 
