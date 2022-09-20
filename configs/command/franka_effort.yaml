@@ -3,8 +3,8 @@ franka :
     _target_ : isaac_gym_manipulation.command.dof_command.DOF_Command
     target_actor : franka
     controller_str : effort
-    action_range : [0,7]
-    dof_range : [0,7]
+    action_range : [0,9]
+    dof_range : [0,9]
     action_pre_process : 
       _target_: isaac_gym_manipulation.command.action_pre_process.TorqueActProcessing
       power_scale : 1

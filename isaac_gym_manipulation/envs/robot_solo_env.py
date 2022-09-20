@@ -36,6 +36,7 @@ class RobotSoloEnv(VecTask):
         self.scene_cfg = cfg["env"]["scene"]
         self.agent_name = self.scene_cfg["agent"]["name"]
         self.reset_noise = self.cfg["env"]["reset_noise"]
+        self.asset_root = self.scene_cfg["asset_dir"]
 
         ### create commands based on config:
         self.command_manager = CommandManager(cfg["env"]["numEnvs"])
@@ -99,7 +100,7 @@ class RobotSoloEnv(VecTask):
         else:
             self.env_debugger = debugger
 
-    def get_main_agent_asset(self, asset_root: str):
+    def get_main_agent_asset(self):
         """
         Save properties of the tiago asset and returns the tiago asset.
         The properties saved contains information about the drive mode od DOFs
@@ -110,12 +111,13 @@ class RobotSoloEnv(VecTask):
         asset_options.flip_visual_attachments = agent_cfg["flip_visual_attachments"]
         asset_options.disable_gravity = not agent_cfg["gravity"]
         asset_options.fix_base_link = agent_cfg["fix_base"]
+
         # asset_options.collapse_fixed_joints = (
         #     True  #      Merge links that are connected by fixed joints.
         # )
         urdf_path = agent_cfg["urdf_path"]
         agent_asset = self.gym.load_asset(
-            self.sim, asset_root, urdf_path, asset_options
+            self.sim, self.asset_root, urdf_path, asset_options
         )
         props = self.gym.get_asset_dof_properties(agent_asset)
         num_dof = self.gym.get_asset_dof_count(agent_asset)
@@ -159,8 +161,8 @@ class RobotSoloEnv(VecTask):
 
     def _create_envs(self, spacing, num_per_row) -> None:
         # load robots props:
-        asset_root = self.scene_cfg["asset_dir"]
-        agent_asset, agent_dof_props = self.get_main_agent_asset(asset_root)
+
+        agent_asset, agent_dof_props = self.get_main_agent_asset()
         agent_start_tr = gymapi.Transform()
         agent_start_tr.p = gymapi.Vec3(*self.scene_cfg["agent"]["pos"])
         agent_start_tr.r = gymapi.Quat.from_euler_zyx(0, 0, 0)

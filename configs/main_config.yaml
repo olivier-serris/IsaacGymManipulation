@@ -1,21 +1,50 @@
 physics_engine: 'physx'
-rl_device : cuda
+rl_device : 'cuda:0' # cpu or cuda
+env_name : TableGrasp # RobotSolo / TableGrasp
+headless : True
+sim_device: 'cuda:0'
 sim : 
   dt: 0.0166 # 1/60
   substeps : 2
-  use_gpu_pipeline  : True
-  up_axis : 'z'
-  gravity: [0.0, 0.0, -9.81]
+  use_gpu_pipeline  : False
+  physx:
+      # Parameter taken from :
+      # https://github.com/NVIDIA-Omniverse/IsaacGymEnvs/blob/main/isaacgymenvs/cfg/task/FrankaCabinet.yaml
+      # Might need to be changed for other robots.
+    num_threads: 4 # Number of worker threads per scene used by PhysX - for CPU PhysX only.
+    solver_type: 1 # 0: pgs, 1: tgs
+    num_subscenes: 4 # Splits the simulation into N physics scenes and runs each one in a separate thread
+    use_gpu: ${contains:"cuda",${sim_device}} # set to False to run on CPU
+    num_position_iterations: 12
+    num_velocity_iterations: 1
+    contact_offset: 0.005
+    rest_offset: 0.0
+    bounce_threshold_velocity: 0.2
+    max_depenetration_velocity: 1000.0
+    default_buffer_size_multiplier: 5.0
+    max_gpu_contact_pairs: 1048576 # 1024*1024
+    contact_collection: 0 # 0: CC_NEVER (don't collect contact info), 1: CC_LAST_SUBSTEP (collect only contacts on last substep), 2: CC_ALL_SUBSTEPS (default - all contacts)
+
 
 env : 
-  numEnvs : 8
-  episodeLength : 1000
-  numObservations : 24 # will be hard coded in env for next iterations.
+  numEnvs : 1000
+  episodeLength : 200
+  numObservations : 7 # will be hard coded in env for next iterations.
   envSpacing : 2 # will be hard coded in env for next iterations
+  reset_noise : False
+  
   
   scene : ${scene}
 
+train : 
+  n_budget_step : 100_000_000
+  wandb_mode : online # online offline disabled
+  agent : uniform
+
+
+
 defaults:
+  - _self_
   - scene: franka_ycb 
   - command: franka_effort
  

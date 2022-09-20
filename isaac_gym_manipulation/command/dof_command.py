@@ -58,7 +58,7 @@ class DOF_Command:
         for dof_id in ids:
             props["driveMode"][dof_id] = self.drive_mode
             if self.drive_mode in [gymapi.DOF_MODE_POS, gymapi.DOF_MODE_VEL]:
-                dof_name = self.pd_values[dof_id]
+                dof_name = dof_dict.inverse[dof_id]
                 props["stiffness"][dof_id] = self.pd_values[dof_name]["p"]
                 props["damping"][dof_id] = self.pd_values[dof_name]["d"]
             else:

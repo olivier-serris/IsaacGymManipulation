@@ -1,4 +1,4 @@
-asset_dir : ${hydra:runtime.cwd}/isaac_gym_manipulation/assets
+asset_dir : ${hydra:runtime.cwd}/assets
 
 agent:
   name: franka
@@ -14,29 +14,29 @@ agent:
     dist_to_gripper : 0.10
     
 table : 
-  pos : [0.44, 0.0, 0.98] 
+  pos : [0.5, 0.0, 0.98] # table position is relative to the position and orientation of the main robot.
   scale : [1,2,1]
 
 YCB_objects : 
 # objects positions are relative to the center of table 
   ycb_apple : # problem with texture
     urdf_path: urdf/ycb_objects_sample/ycb_apple/ycb_apple.urdf
-    pos : [0.1,0.8, .2]
+    pos : [0.1,0.8, .01] # pos is relative to center of table
     scale : [1,1,1]
   ycb_chips_can : 
     urdf_path: urdf/ycb_objects_sample/ycb_chips_can/ycb_chips_can.urdf
-    pos : [0.1,0.4, .2]
+    pos : [0.1,0.4, .01] # pos is relative to center of table
     scale : [1,1,1]
 
   ycb_gelatin_box : # ok 
     urdf_path: urdf/ycb_objects_sample/ycb_gelatin_box/ycb_gelatin_box.urdf
-    pos : [0.1,0.0, .2]
+    pos : [0.1,0.0, .01] # pos is relative to center of table
     scale : [1,1,1]
   ycb_mug: # problem with texture ??
     urdf_path: urdf/ycb_objects_sample/ycb_mug/ycb_mug.urdf
-    pos : [-0.1,-0.4, 0.2]
+    pos : [-0.1,-0.4, .01] # pos is relative to center of table
     scale : [1,1,1]
   ycb_power_drill: # ok
     urdf_path: urdf/ycb_objects_sample/ycb_power_drill/ycb_power_drill.urdf
-    pos : [-0.1,-0.8, .2]
+    pos : [-0.1,-0.8, .01] # pos is relative to center of table
     scale : [1,1,1]

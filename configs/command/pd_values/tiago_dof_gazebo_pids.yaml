@@ -1,0 +1,31 @@
+# Values are taken from : 
+# https://github.com/pal-robotics/tiago_simulation/blob/kinetic-devel/tiago_controller_configuration_gazebo/config/pids.yaml
+# The i coefficient of the PID have been removed
+
+
+# 0-11 : wheels
+torso_lift_joint: {p: 900000,  d: 250} # 12
+arm_1_joint: {p: 3000, d: 5} # 13
+arm_2_joint: {p: 3000, d: 5} # 14
+arm_3_joint: {p: 3000, d: 5} # 15
+arm_4_joint: {p: 3000, d: 5} # 16
+arm_5_joint: {p: 500,  d: 1} # 17
+arm_6_joint: {p: 500,  d: 1} # 18
+arm_7_joint: {p: 500,  d: 1} # 19
+gripper_left_finger_joint: {p: 2000,  d: 0} #20 
+gripper_right_finger_joint: {p: 2000,  d: 0} #21
+head_1_joint: {p: 100,  d: 0} # 22 
+head_2_joint: {p: 100,  d: 0} # 234
+
+
+# velocity:
+#     wheel_right_joint: {p: 30,  d: 0, i: 0, i_clamp: 1.0}
+#     wheel_left_joint:  {p: 30,  d: 0, i: 0, i_clamp: 1.0}
+#     caster_front_right_1_joint: {p: 0,  d: 0,  i: 0, i_clamp: 0}
+#     caster_front_right_2_joint: {p: 0,  d: 0,  i: 0, i_clamp: 0}
+#     caster_front_left_1_joint: {p: 0,  d: 0,  i: 0, i_clamp: 0}
+#     caster_front_left_2_joint: {p: 0,  d: 0,  i: 0, i_clamp: 0}
+#     caster_back_right_1_joint: {p: 0,  d: 0,  i: 0, i_clamp: 0}
+#     caster_back_right_2_joint: {p: 0,  d: 0,  i: 0, i_clamp: 0}
+#     caster_back_left_1_joint: {p: 0,  d: 0,  i: 0, i_clamp: 0}
+#     caster_back_left_2_joint: {p: 0,  d: 0,  i: 0, i_clamp: 0}

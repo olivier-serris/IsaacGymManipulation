@@ -58,7 +58,7 @@ class TableGraspEnv(RobotSoloEnv):
         """
         # load robots props:
         asset_root = self.scene_cfg["asset_dir"]
-        agent_asset, agent_dof_props = self.get_main_agent_asset(asset_root)
+        agent_asset, agent_dof_props = self.get_main_agent_asset()
         agent_start_tr = gymapi.Transform()
         agent_start_tr.p = gymapi.Vec3(*self.scene_cfg["agent"]["pos"])
         agent_start_tr.r = gymapi.Quat.from_euler_zyx(0, 0, 0)
@@ -135,6 +135,8 @@ class TableGraspEnv(RobotSoloEnv):
                 env, table_asset, table_tr, "table", i
             )
 
+            if "YCB_objects" not in self.scene_cfg:
+                continue
             # Create objects on table
             for obj_key, object_config in self.scene_cfg["YCB_objects"].items():
                 object_asset = object_assets[obj_key]
@@ -177,9 +179,7 @@ class TableGraspEnv(RobotSoloEnv):
             self.gripper_collide_object[:, i] = self.grasp_manager.gripper_contact(
                 object_id
             )
-            self.no_table_contact[
-                :, i
-            ] = self.grasp_manager.no_table_contact(object_id)
+            self.no_table_contact[:, i] = self.grasp_manager.no_table_contact(object_id)
             grasped[:, i] = self.grasp_manager.is_grapsed(object_id)
         rewards, _ = torch.max(grasped, dim=1)
 

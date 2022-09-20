@@ -33,12 +33,17 @@ class TorqueActProcessing(ActionProcessing):
 
     def init(self, actor_state: ActorState, dof_range: Pair):
         super().init(actor_state, dof_range)
-        self.moto_effort = self.actor_state.effort_limits[
+        self.effort_limits = self.actor_state.effort_limits[
             self.dof_range[0] : self.dof_range[1]
         ]
 
     def to_control_space(self, actions: torch.Tensor, dt: float) -> Any:
-        efforts = actions * self.moto_effort * self.power_scale
+        efforts = actions * self.effort_limits * self.power_scale
+        efforts = tensor_clamp(
+            efforts,
+            -self.effort_limits,
+            self.effort_limits,
+        )
         return efforts
 
 
@@ -77,7 +82,6 @@ class DOF_TranslationActProcessing(ActionProcessing):
 
     def init(self, actor_state: ActorState, dof_range: Pair):
         super().init(actor_state, dof_range)
-        self.current_dof_targets = actor_state.dof_pos
 
         self.lower_limits = self.actor_state.dof_lower_limits[
             self.dof_range[0] : self.dof_range[1]
@@ -85,6 +89,10 @@ class DOF_TranslationActProcessing(ActionProcessing):
         self.upper_limits = self.actor_state.dof_upper_limits[
             self.dof_range[0] : self.dof_range[1]
         ]
+        self.current_dof_targets = actor_state.dof.pos[
+            :, self.dof_range[0] : self.dof_range[1]
+        ].clone()
+        self.dof_speed_scale = to_torch(self.dof_speed_scale, device=actor_state.device)
 
     def to_control_space(self, actions: torch.Tensor, dt: float) -> Any:
         current_dof = self.current_dof_targets
@@ -92,7 +100,7 @@ class DOF_TranslationActProcessing(ActionProcessing):
             current_dof + self.dof_speed_scale * dt * actions * self.action_scale
         )
         target_dof = tensor_clamp(
-            actions,
+            target_dof,
             self.lower_limits,
             self.upper_limits,
         )
@@ -100,7 +108,7 @@ class DOF_TranslationActProcessing(ActionProcessing):
         return target_dof
 
     def current_val_of_target(self) -> Any:
-        return self.actor_state.dof_pos[:, self.dof_range[0] : self.dof_range[1]]
+        return self.actor_state.dof.pos[:, self.dof_range[0] : self.dof_range[1]]
 
 
 class IK_ActProcessing(ActionProcessing):

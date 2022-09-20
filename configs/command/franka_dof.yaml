@@ -1,0 +1,13 @@
+franka :
+  dof_pid_command:
+    _target_ : isaac_gym_manipulation.command.dof_command.DOF_Command
+    target_actor : franka
+    controller_str : dof_pid_pos
+    action_range : [0,9]
+    dof_range : [0,9]
+    pd_values : ${scene.asset_dir}/pd_controllers/franka_dof_pids.yaml
+    action_pre_process : 
+      _target_: isaac_gym_manipulation.command.action_pre_process.DOF_TranslationActProcessing
+      action_scale : 7.5
+      dof_speed_scale : [1, 1, 1, 1, 1, 1, 1, 0.1, 0.1 ]
+
