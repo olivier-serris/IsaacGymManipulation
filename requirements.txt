@@ -1,8 +1,8 @@
 bidict>=0.22.0
 gym==0.23.1
 hydra-core==1.2.0
-numpy==1.22.4
-omegaconf==2.2.1
-setuptools==62.3.2
-torch==1.11.0
-trimesh==3.12.3
+numpy
+omegaconf
+setuptools
+torch
+trimesh
