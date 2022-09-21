@@ -204,7 +204,7 @@ class RobotSoloEnv(VecTask):
             dof_view.pos += 0.25 * (
                 torch.rand((len(env_ids), num_agent_dof), device=self.device) - 0.5
             )
-            dof_view.pos = torch.clamp(
+            dof_view.pos = tensor_clamp(
                 dof_view.pos,
                 agent_state.dof_lower_limits,
                 agent_state.dof_upper_limits,
