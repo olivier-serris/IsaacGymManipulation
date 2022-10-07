@@ -116,7 +116,7 @@ class IsaacTensorState:
 
         # reset PID velocity targets :
         self.dof_velocity_target[env_ids] = 0
-        success = self.gym.set_dof_position_target_tensor(
+        success = self.gym.set_dof_velocity_target_tensor(
             self.sim,
             gymtorch.unwrap_tensor(self.dof_velocity_target),
         )
