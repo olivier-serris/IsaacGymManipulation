@@ -1,6 +1,8 @@
 from typing import Callable
 from isaacgym import gymutil, gymtorch, gymapi
 import math
+
+import torch
 from isaac_gym_manipulation.isaac_utils.actor_state import ActorState
 import pickle
 import os
@@ -59,6 +61,8 @@ class DefaultDebugger:
             print(actor.dof.pos[0, :])
             print("RB_POS")
             print(actor.rb.pos[0, :])
+            print("RB_ROT")
+            print(actor.rb.rot[0, :])
             print("_" * 50)
 
     def on_quicksave(self, event):
@@ -106,21 +110,17 @@ class GraspDebugger(DefaultDebugger):
         self.box_geom = gymutil.WireframeBoxGeometry()
         self.suscribe_event(gymapi.KEY_T, "teleport", self.on_teleport_into_gripper)
 
-        self.obj_spheres = []
-        colors = {"green": (0, 1, 0), "red": (1, 0, 0), "yellow": (1, 1, 0)}
+        self.obj_spheres = {}
+        self.obj_actor_dict = {}
         for obj_key in self.env.object_ids:
             actor = self.env.isaac_tensor_manager.actor_dict[obj_key]
-            self.obj_spheres.append(
-                {
-                    key: gymutil.WireframeSphereGeometry(
-                        actor.infos["radius"],
-                        12,
-                        12,
-                        gymapi.Transform(),
-                        color=color,
-                    )
-                    for key, color in colors.items()
-                }
+            self.obj_actor_dict[obj_key] = actor
+            self.obj_spheres[obj_key] = gymutil.WireframeSphereGeometry(
+                actor.infos["radius"],
+                12,
+                12,
+                gymapi.Transform(),
+                color=(0, 0, 0),
             )
 
     def draw(self):
@@ -129,42 +129,44 @@ class GraspDebugger(DefaultDebugger):
         envs = self.env.envs
         gym.clear_lines(self.viewer)
 
-        for env_id in range(self.env.num_envs):
+        env_id = 0
+        sphere_pose = gymapi.Transform()
+        sphere_pose.p = gymapi.Vec3(*self.gripper_pos[env_id, :])
+        sphere_pose.r = gymapi.Quat.from_euler_zyx(0, 0, 0)
+        gymutil.draw_lines(
+            self.yellow_sphere,
+            self.gym,
+            self.viewer,
+            envs[env_id],
+            sphere_pose,
+        )
+        for obj_id, obj_key in enumerate(self.env.object_ids):
+            actor = self.env.isaac_tensor_manager.actor_dict[obj_key]
             sphere_pose = gymapi.Transform()
-            sphere_pose.p = gymapi.Vec3(*self.gripper_pos[env_id, :])
-            sphere_pose.r = gymapi.Quat.from_euler_zyx(0, 0, 0)
+            sphere_pose.r = gymapi.Quat(*actor.root.rot[env_id, :])
+            sphere_pose.p = sphere_pose.r.rotate(
+                gymapi.Vec3(*actor.infos["centroid"])
+            ) + gymapi.Vec3(*actor.root.pos[env_id, :])
+            color = torch.zeros(3)
+            if self.env.no_table_contact[env_id, obj_id]:
+                color += torch.tensor((0, 1, 0))
+            if self.env.gripper_collide_object[env_id, obj_id]:
+                color += torch.tensor((1, 0, 0))
+            if self.env.extras[f"object_{obj_id}_first_gripper_contact"][env_id]:
+                color += torch.tensor((0, 0, 1))
             gymutil.draw_lines(
-                self.yellow_sphere,
+                gymutil.WireframeSphereGeometry(
+                    self.obj_actor_dict[obj_key].infos["radius"],
+                    12,
+                    12,
+                    gymapi.Transform(),
+                    color=tuple(color.tolist()),
+                ),
                 self.gym,
                 self.viewer,
                 envs[env_id],
                 sphere_pose,
             )
-            for obj_id, obj_key in enumerate(self.env.object_ids):
-                actor = self.env.isaac_tensor_manager.actor_dict[obj_key]
-                sphere_pose = gymapi.Transform()
-                sphere_pose.r = gymapi.Quat(*actor.root.rot[env_id, :])
-                sphere_pose.p = sphere_pose.r.rotate(
-                    gymapi.Vec3(*actor.infos["centroid"])
-                ) + gymapi.Vec3(*actor.root.pos[env_id, :])
-                if (
-                    self.env.no_table_contact[env_id, obj_id]
-                    and self.env.gripper_collide_object[env_id, obj_id]
-                ):
-                    color = "green"
-                elif self.env.gripper_collide_object[env_id, obj_id]:
-                    color = "yellow"
-                else:
-                    color = "red"
-                # color = "red" if self.env.gripper_collide_object[env_id, obj_id] else "green"
-                gymutil.draw_lines(
-                    self.obj_spheres[obj_id][color],
-                    self.gym,
-                    self.viewer,
-                    envs[env_id],
-                    sphere_pose,
-                )
-            break
 
     def on_teleport_into_gripper(self, event):
         print("teleport into gripper")

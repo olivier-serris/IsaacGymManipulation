@@ -6,7 +6,7 @@ sim_device: 'cuda:0'
 sim : 
   dt: 0.0166 # 1/60
   substeps : 2
-  use_gpu_pipeline  : False
+  use_gpu_pipeline  : True
   physx:
       # Parameter taken from :
       # https://github.com/NVIDIA-Omniverse/IsaacGymEnvs/blob/main/isaacgymenvs/cfg/task/FrankaCabinet.yaml

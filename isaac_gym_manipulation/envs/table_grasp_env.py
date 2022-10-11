@@ -142,7 +142,7 @@ class TableGraspEnv(RobotSoloEnv):
                 object_asset = object_assets[obj_key]
                 pose = gymapi.Transform()
                 pose.p = self._table_surface_pos + gymapi.Vec3(*object_config["pos"])
-                pose.r = gymapi.Quat.from_euler_zyx(0, 0, 0)
+                pose.r = gymapi.Quat(*object_config.get("rot", (0, 0, 0, 1)))
                 self.isaac_tensor_manager.create_actor(
                     env, object_asset, pose, obj_key, i
                 )
@@ -181,6 +181,11 @@ class TableGraspEnv(RobotSoloEnv):
             )
             self.no_table_contact[:, i] = self.grasp_manager.no_table_contact(object_id)
             grasped[:, i] = self.grasp_manager.is_grapsed(object_id)
+
+            #  in isaacgym ve_env the classic info dict is called extras :
+            self.extras[
+                f"object_{i}_first_gripper_contact"
+            ] = self.grasp_manager.first_gripper_contact(object_id, self.progress_buf)
         rewards, _ = torch.max(grasped, dim=1)
 
         self.rew_buf = rewards

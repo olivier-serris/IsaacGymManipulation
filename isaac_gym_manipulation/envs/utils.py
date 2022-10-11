@@ -170,3 +170,11 @@ def compute_osc_torques(
         effort_limit.unsqueeze(0),
     )
     return u
+
+
+
+def batched_dot(a, b):
+    '''batched dot product'''
+    B = a.shape[0]
+    S = a.shape[1]
+    return torch.bmm(a.view(B, 1, S), b.view(B, S, 1)).reshape(-1)
