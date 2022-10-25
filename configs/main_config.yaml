@@ -27,7 +27,7 @@ sim :
 
 
 env : 
-  numEnvs : 100
+  numEnvs : 10
   episodeLength : 200
   numObservations : 7 # will be hard coded in env for next iterations.
   envSpacing : 2 # will be hard coded in env for next iterations
@@ -36,15 +36,9 @@ env :
   
   scene : ${scene}
 
-train : 
-  n_budget_step : 100_000_000
-  wandb_mode : online # online offline disabled
-  agent : uniform
-
-
 
 defaults:
   - _self_
-  - scene: franka_ycb 
-  - command: franka_effort
+  - scene: tiago_ycb 
+  - command: tiago_dof
  

@@ -1,20 +1,25 @@
 asset_dir : ${hydra:runtime.cwd}/isaac_gym_manipulation/assets
 
+
 agent:
-  name: franka
-  start_dof : [1.157, -1.066, -0.155, -2.239, -1.841, 1.003, 0.469, 0.035, 0.035]
-  urdf_path : urdf/franka_description/robots/franka_panda.urdf # relative to main asset folder. 
-  pos : [0.0, 0.0, 1.0]
+  name: tiago
+  start_dof : [ 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0, # lower body
+                    4.0736e-01, -3.4731e-02,
+        -1.9498e+00,  1.3305e+00,  6.2150e-01, -9.4561e-01,  2.5396e-01,
+         0.01,  0.01, 0, 0]
+  urdf_path : urdf/tiago_description/robots/tiago_gripper.urdf # relative to main asset folder. 
+  pos : [0,0,0]
   fix_base : True
   gravity : False
-  gripper_rb_key : panda_hand
-  flip_visual_attachments : True
+  gripper_rb_key : gripper_right_finger_link
+  flip_visual_attachments : False
   grasp : 
     lift_height : 0.25
     dist_to_gripper : 0.10
-    
+
+
 table : 
-  pos : [0.5, 0.0, 0.98] 
+  pos : [0.8, 0.0, 0.5] 
   scale : [1,2,1]
 
 YCB_objects : 

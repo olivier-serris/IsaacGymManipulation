@@ -1,0 +1,7 @@
+<launch deprecated="Please use 'upload.lauch' instead.">
+
+  <include file="$(find pal_gripper_description)/robots/upload.launch">
+        <arg name="robot" value="$(arg robot)"/>
+  </include>
+
+</launch>
