@@ -1,46 +1,47 @@
-asset_dir : ${hydra:runtime.cwd}/assets
-
+asset_dir : ${hydra:runtime.cwd}/isaac_gym_manipulation/assets
 
 agent:
-  name: tiago
-  start_dof : [ 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0, # lower body
-                    4.0736e-01, -3.4731e-02,
-        -1.9498e+00,  1.3305e+00,  6.2150e-01, -9.4561e-01,  2.5396e-01,
-         0.01,  0.01, 0, 0]
-  urdf_path : urdf/tiago_description/robots/tiago_gripper.urdf # relative to main asset folder. 
-  pos : [0,0,0]
+  name: franka
+  start_dof : [1.157, -1.066, -0.155, -2.239, -1.841, 1.003, 0.469, 0.035, 0.035]
+  urdf_path : urdf/franka_description/robots/franka_panda.urdf # relative to main asset folder. 
+  pos : [0.0, 0.0, 1.0]
   fix_base : True
   gravity : False
-  gripper_rb_key : gripper_right_finger_link
-  flip_visual_attachments : False
+  gripper_rb_key : panda_hand
+  flip_visual_attachments : True
   grasp : 
     lift_height : 0.25
     dist_to_gripper : 0.10
-
-
+    
 table : 
-  pos : [0.8, 0.0, 0.5] 
+  pos : [0.5, 0.0, 0.98] # table position is relative to the position and orientation of the main robot.
   scale : [1,2,1]
 
 YCB_objects : 
 # objects positions are relative to the center of table 
   ycb_apple : # problem with texture
     urdf_path: urdf/ycb_objects_sample/ycb_apple/ycb_apple.urdf
-    pos : [0.1,0.8, .005] # pos is relative to center of table
+    pos : [0.1,0.8, .0056] # pos is relative to center of table
+    rot : [0, 0, 0, 1]
     scale : [1,1,1]
   ycb_chips_can : 
     urdf_path: urdf/ycb_objects_sample/ycb_chips_can/ycb_chips_can.urdf
-    pos : [0.1,0.4, .005] # pos is relative to center of table
+    pos : [0.1,0.4, .0044] # pos is relative to center of table
+    rot : [1.5479e-02, -1.9286e-02, -8.6736e-05,  9.9969e-01]
     scale : [1,1,1]
+
   ycb_gelatin_box : # ok 
     urdf_path: urdf/ycb_objects_sample/ycb_gelatin_box/ycb_gelatin_box.urdf
-    pos : [0.1,0.0, .005] # pos is relative to center of table
+    pos : [0.1,0.0, 0.0202] # pos is relative to center of table
+    rot : [0.5285, 0.4587, 0.0152, 0.7142]
     scale : [1,1,1]
   ycb_mug: # problem with texture ??
     urdf_path: urdf/ycb_objects_sample/ycb_mug/ycb_mug.urdf
-    pos : [-0.1,-0.4, .005] # pos is relative to center of table
+    pos : [-0.1,-0.4, .0058] # pos is relative to center of table
+    rot : [0, 0, 0, 1]
     scale : [1,1,1]
   ycb_power_drill: # ok
     urdf_path: urdf/ycb_objects_sample/ycb_power_drill/ycb_power_drill.urdf
-    pos : [-0.1,-0.8, .005] # pos is relative to center of table
+    pos : [-0.1,-0.8, .0470] # pos is relative to center of table
+    rot : [-0.5772, -0.4185,  0.0034,  0.7012]
     scale : [1,1,1]

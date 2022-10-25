@@ -27,7 +27,7 @@ sim :
 
 
 env : 
-  numEnvs : 1000
+  numEnvs : 100
   episodeLength : 200
   numObservations : 7 # will be hard coded in env for next iterations.
   envSpacing : 2 # will be hard coded in env for next iterations
