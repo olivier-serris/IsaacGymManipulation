@@ -39,6 +39,6 @@ env :
 
 defaults:
   - _self_
-  - scene: tiago_ycb 
-  - command: tiago_dof
+  - scene: franka_ycb 
+  - command: franka_effort
  

@@ -193,5 +193,4 @@ class TableGraspEnv(RobotSoloEnv):
 
     def compute_observations(self):
         self.isaac_tensor_manager.refresh_all()
-        robot = self.isaac_tensor_manager.actor_dict[self.agent_name]
-        return robot.dof.pos
+        self.obs_buf = self.isaac_tensor_manager.actor_dict[self.agent_name].dof.pos
