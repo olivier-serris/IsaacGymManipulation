@@ -40,5 +40,5 @@ env :
 defaults:
   - _self_
   - scene: franka_ycb 
-  - command: franka_effort
+  - command: franka_dof_abs
  

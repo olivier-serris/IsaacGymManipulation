@@ -57,11 +57,13 @@ class DOF_PositionActProcessing(ActionProcessing):
         self.upper_limits = self.actor_state.dof_upper_limits[
             self.dof_range[0] : self.dof_range[1]
         ]
+        self.limit_ranges = self.upper_limits - self.lower_limits
 
     def to_control_space(self, actions: torch.Tensor, dt: float) -> Any:
-        # TODO: Normalize DOF ?
+        actions = (actions + 1) / 2  # rescale to [0,1]
+        target_dof = self.lower_limits + actions * self.limit_ranges
         target_dof = tensor_clamp(
-            actions,
+            target_dof,
             self.lower_limits,
             self.upper_limits,
         )
