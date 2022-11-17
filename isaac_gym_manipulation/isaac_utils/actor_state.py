@@ -160,6 +160,10 @@ class ActorState:
         return self._dof_dict
 
     @property
+    def rb_dict(self):
+        return self._rb_link_dict
+
+    @property
     def num_envs(self):
         return self.tensorState.num_envs
 
