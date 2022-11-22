@@ -1,0 +1,10 @@
+tiago :
+  dof_pid_command:
+    _target_ : isaac_gym_manipulation.command.dof_command.DOF_Command
+    target_actor : tiago
+    controller_str : dof_pid_pos
+    action_range : [0,12]
+    dof_range : [12,24]
+    pd_values : ${scene.asset_dir}/pd_controllers/tiago_dof_gazebo_pids.yaml
+    action_pre_process : 
+      _target_: isaac_gym_manipulation.command.action_pre_process.DOF_PositionActProcessing

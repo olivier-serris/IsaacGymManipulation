@@ -3,7 +3,7 @@ asset_dir : ${hydra:runtime.cwd}/isaac_gym_manipulation/assets
 
 agent:
   name: tiago
-  start_dof : [ 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0, # lower body
+  start_dof : [ 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0.12, # lower body
                     4.0736e-01, -3.4731e-02,
         -1.9498e+00,  1.3305e+00,  6.2150e-01, -9.4561e-01,  2.5396e-01,
          0.01,  0.01, 0, 0]
